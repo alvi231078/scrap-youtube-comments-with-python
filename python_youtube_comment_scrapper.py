@@ -1,9 +1,7 @@
 import time
-from datetime import datetime
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
@@ -44,13 +42,7 @@ for comment in comment_elements:
     try:
         commenter_name = "@" + comment.find_element(By.CSS_SELECTOR, '#author-text span').text.strip()
         comment_text = comment.find_element(By.CSS_SELECTOR, '#content-text').text.strip()
-        timestamp_element = comment.find_elements(By.CSS_SELECTOR, 'a#published-time-text')
-        if timestamp_element:
-            timestamp = timestamp_element[0].get_attribute('aria-label')
-            timestamp = datetime.strptime(timestamp, "%b %d, %Y")
-        else:
-            timestamp = "N/A"
-        comments.append({"Commenter Name": commenter_name, "Comment": comment_text, "Timestamp": timestamp})
+        comments.append({"Commenter Name": commenter_name, "Comment": comment_text})
     except Exception as e:
         print("Exception occurred:", str(e))
 
@@ -59,8 +51,6 @@ if comments:
     for comment in comments:
         print(f"Commenter Name: {comment['Commenter Name']}")
         print(f"Comment: {comment['Comment']}")
-        print(f"Timestamp: {comment['Timestamp']}")
-        print("-" * 50)
 else:
     print("No comments found.")
 
@@ -71,8 +61,6 @@ with open(filename, "w") as file:
         for comment in comments:
             file.write(f"Commenter Name: {comment['Commenter Name']}\n")
             file.write(f"Comment: {comment['Comment']}\n")
-            file.write(f"Timestamp: {comment['Timestamp']}\n")
-            file.write("-" * 50 + "\n")
     else:
         file.write("No comments found.")
 
