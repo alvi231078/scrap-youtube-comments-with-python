@@ -15,7 +15,7 @@ with open(path, 'r') as comments_file:
 
             # Find the start and end index of the comment
             start_index = line_index + 1
-            end_index = start_index
+            end_index = line_index + 2
             while end_index < len(comment_lines) and not comment_lines[end_index].startswith('Commenter Name:'):
                 end_index += 1
 
