@@ -1,47 +1,61 @@
-path = 'youtube_comments.txt'
+class Comment:
+    def __init__(self, number, commenter_name, comment):
+        self.number = number
+        self.commenter_name = commenter_name
+        self.comment = comment
 
-comments = {}  # Initialize the comments dictionary
-current_comment_id = 1
-
-with open(path, 'r') as comments_file:
-    comment_lines = comments_file.readlines()
-
-    line_index = 0
-    while line_index < len(comment_lines):
-        line = comment_lines[line_index].strip()
-
-        if line.startswith('Commenter Name:'):
-            commenter_name = line[len('Commenter Name:'):].strip()
-
-            # Find the start and end index of the comment
-            start_index = line_index
-            end_index = line_index + 2
-            while end_index < len(comment_lines) and not comment_lines[end_index].startswith('Commenter Name:'):
-                end_index += 1
-
-            # Extract the comment lines and join them
-            comment_lines_extracted = comment_lines[start_index:end_index]
-            comment = ' '.join(line.strip() for line in comment_lines_extracted)
-
-            comments[current_comment_id] = {'Commenter Name': commenter_name, 'Comment': comment}
-            current_comment_id += 1
-
-            # Move the line index to the end of the current comment
-            line_index = end_index
-
-        line_index += 1
-
-# Search by commenter name or comment content
-search_term = input("Enter the commenter's name or a keyword from the comment: ")
-found_comments = [(comment_id, comment) for comment_id, comment in comments.items() if
-                  search_term.lower() in comment['Commenter Name'].lower() or
-                  search_term.lower() in comment['Comment'].lower()]
-
-if found_comments:
-    for comment_id, comment in found_comments:
-        print(f"Comment {comment_id}:")
-        print(f"Commenter Name: {comment['Commenter Name']}")
-        print(f"Comment: {comment['Comment']}")
+    def display(self):
+        print(f"Comment #{self.number}")
+        print(f"Commenter Name: {self.commenter_name}")
+        print(f"Comment: {self.comment}")
         print()
-else:
-    print("No matching comments found.")
+
+
+def parse_comments(filename):
+    with open(filename, 'r') as file:
+        lines = file.readlines()
+#lines er moddhe eigula load koira store korsii
+    comments = []
+    comment_data = {}
+    for line in lines:
+        if line.startswith("Comment:"):
+            comment_data['comment'] = line.split("Comment:")[1].strip()
+        elif line.startswith("Commenter Name:"):
+            comment_data['commenter_name'] = line.split("Commenter Name:")[1].strip()
+        elif line.strip() == '':
+            if comment_data:
+                comment = Comment(len(comments) + 1, comment_data['commenter_name'], comment_data['comment'])
+                comments.append(comment)
+                comment_data = {}
+
+    return comments
+
+
+
+def search_comments(comments, keyword):
+    found_comments = []
+    for comment in comments:
+        if keyword.lower() in comment.comment.lower():
+            found_comments.append(comment)
+    return found_comments
+
+
+def main():
+    filename = 'youtube_comments.txt'
+    comments = parse_comments(filename)
+
+    while True:
+        keyword = input("Enter a keyword to search for (or 'exit' to quit): ")
+        if keyword.lower() == 'exit':
+            break
+
+        found_comments = search_comments(comments, keyword)
+        if found_comments:
+            print(f"Found {len(found_comments)} comment(s) matching the keyword '{keyword}':")
+            for comment in found_comments:
+                comment.display()
+        else:
+            print(f"No comments found matching the keyword '{keyword}'.")
+
+if __name__ == '__main__':
+    main()
